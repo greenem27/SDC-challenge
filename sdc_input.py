@@ -33,6 +33,8 @@ def sample_images(training_set=True,
 	while True:
 
 		curr_folder = weighted_choice(f_and_l)
+		angles = get_angles(curr_folder)
+
 		if training_set:
 			#Use first 80% of data
 			file_num = random.randint(0, int(0.8 * n_files))
@@ -51,7 +53,6 @@ def sample_images(training_set=True,
 
 		image = pre_process_image(image, 0)
 
-		#TODO: This function needs to be finished
 		steering_angle = retrieve_angle(curr_folder, file_num, n_files)
 
 
@@ -70,14 +71,14 @@ def weighted_choice(choices):
     i = bisect(cum_weights, x)
     return values[i], weights[i]
 
-def retrieve_angle(folder, n, n_files):
-	#TODO: Write code to subsample steering angles
-	#That way we don't have to deal with that here.
-	#so they match the number of camera images.
-	df = pd.read_csv(folder+'_steering_angles.csv')
+# def retrieve_angle(folder, n, n_files):
+# 	#TODO: Write code to subsample steering angles
+# 	#That way we don't have to deal with that here.
+# 	#so they match the number of camera images.
+# 	df = pd.read_csv(folder+'_steering_angles.csv')
 
-	#TODO finish this function.
-	return
+# 	#TODO finish this function.
+# 	return
 
 def reduce_angles(angle_list, n, n_files):
     """Take a steering wheel list and the number of images sampled from the
@@ -131,3 +132,13 @@ def pre_process_image(image, px_penalty_shift):
 
 	#TODO: Consider adding guassian noise
 	return image
+
+def get_angles(img_folder_name):
+	#return the angles file => dataframe
+	num = img_folder_name[-1]
+	#TODO: Use correct data folder
+	angle_file = [i for i in os.listdir('data_folder') if '.csv' in i and num in i][0]
+	#TODO: Careful about paths
+	df = pd.read_csv(angle_file)
+	return list(df['feed.steering_angles'])
+

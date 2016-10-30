@@ -3,14 +3,16 @@ from __future__ import division
 from six.moves import xrange
 import tensorflow as tf
 import time
+import itertools
 
 import sdc
+import sdc_input
 
 def train():
 	with tf.Graph().asdefault():
 		
-		images = tf.placeholder(tf.float32, shape=[None, 66, 200, 3]) #TODO: get dimensions right
-		angles = tf.placeholder(tf.float32, shape=[None, 1]) #Same thing here
+		images = tf.placeholder(tf.float32, shape=[None, 66, 200, 3]) 
+		angles = tf.placeholder(tf.float32, shape=[None, 1]) 
 
 		logits = sdc.sdc_model(images)
 
@@ -30,13 +32,20 @@ def train():
 
 		sess.run(init)
 
+		data_gen = sdc_input.sample_images()
+
 		#TODO: Formalize max steps
-		for step in xrange(MAX_STEPS):
+		for step in xrange(10000):
 			start_time = time.time()
 			#GET DATA HERE
 
+			data = itertools.islice(data_gen, 128)
+
+			img_data = np.stack([i[0] for i in data])
+			ang_data = np.stack([i[1] for i in data])
+
 			#TODO: Feed dict should be passed here
-			_, loss_value = sess.run([train_step, loss])
+			_, loss_value = sess.run([train_step, loss], feed_dict={images:img_data, angles:ang_data})
 			duration = time.time() = start_time
 
 			if step % 10 == 0: #This might be way too often
